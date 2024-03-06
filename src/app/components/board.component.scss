@@ -1,0 +1,23 @@
+section {
+    display: flex;
+    height: 100%;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right-width: 1px;
+    border-right-color: gray;
+    border-right-style: solid;
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+  
+.layout-container {
+    width: 100%;
+}
+
+.mb5 {
+    margin-bottom: 5px;
+}

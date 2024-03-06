@@ -1,0 +1,83 @@
+<section>
+  <div class="buttons-container">
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['circle'] ? 'primary' : ''"
+			(click)='addShape("circle")'
+    >
+      <mat-icon>panorama_fish_eye</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['rectangle'] ? 'primary' : ''"
+			(click)='addShape("rectangle")'
+    >
+      <mat-icon>crop_landscape</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['line'] ? 'primary' : ''"
+			(click)='addShape("line"); erase = false'
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['drawer'] ? 'primary' : ''"
+			(click)='addShape("drawer"); erase = false'
+    >
+      <mat-icon>gesture</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['text'] ? 'primary' : ''"
+			(click)='addShape("text")'
+    >
+      <mat-icon>text_fields</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['image'] ? 'primary' : ''"
+			(click)='addShape("image")'
+    >
+      <mat-icon>add_photo_alternate</mat-icon>
+    </button>
+		<!-- <mat-menu #menu="matMenu" yPosition="above">
+			<button mat-menu-item (click)='addShape("image")'>Puertas</button>
+			<button mat-menu-item (click)='addShape("image")'>Sanitario</button>
+			<button mat-menu-item (click)='addShape("image")'>Audio</button>
+			<button mat-menu-item (click)='addShape("image")'>Discapacitados</button>
+		</mat-menu> -->
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['undo'] ? 'primary' : ''"
+			(click)='clearSelection(); setSelection("undo"); undo()'
+    >
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      [color]="selectedButton['erase'] ? 'primary' : ''"
+			(click)='clearSelection(); setSelection("erase"); erase = true'
+    >
+      <mat-icon>how_to_vote</mat-icon>
+    </button>
+    <button mat-mini-fab class="mb5" color="accent" (click)="saveCanvas()">
+      <mat-icon>save</mat-icon>
+    </button>
+    <button mat-mini-fab class="mb5" color="warn" (click)='clearBoard()'>
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+  <div class="layout-container">
+    <div id="container" #stageContainer></div>
+  </div>
+</section>

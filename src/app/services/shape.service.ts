@@ -9,30 +9,9 @@ export class ShapeService {
 
   constructor() { }
 
-  circle() {
-    return new Konva.Circle({
-      x: 100,
-      y: 100,
-      radius: 70,
-      stroke: 'black',
-      strokeWidth: 2,
-      draggable: true
-    });
-  }
-
-  line() {
+  drawer(pos: any, mode: string = 'brush', stroke: string = '#000000') {
     return new Konva.Line({
-      points: [50, 50, 200, 50],
-      stroke: 'black',
-      strokeWidth: 3,
-      draggable: true, // Hacer la línea arrastrable
-      tension: 0
-    });
-  }
-
-  drawer(pos: any, mode: string = 'brush') {
-    return new Konva.Line({
-      stroke: 'black',
+      stroke,
       strokeWidth: mode === 'brush' ? 5 : 2,
       globalCompositeOperation:
         mode === 'brush' ? 'source-over' : 'destination-out',
@@ -53,27 +32,33 @@ export class ShapeService {
     });
   }
 
-  image() {
+  image(type: string) {
+    let src = '';
+    switch (type) {
+      case 'headphones':
+        src = '/assets/auriculares.png';
+        break;
+      case 'bathroom':
+        src = '/assets/bano.png';
+        break;
+      case 'elevator':
+        src = '/assets/elevar.png';
+        break;
+      case 'disabled':
+        src = '/assets/discapacidad.png';
+        break;
+    }
     var imageObj = new Image();
-    imageObj.src = '/assets/auriculares.png';
+    imageObj.src = src;
     return new Konva.Image({
       x: 50,
       y: 50,
       image: imageObj,
       width: 100, // Ancho de la imagen en el lienzo
       height: 100,
-      draggable: true // Alto de la imagen en el lienzo
-    });
-  }
-
-  text() {
-    return new Konva.Text({
-      text: 'Escribe aquí',
-      x: 50,
-      y: 80,
-      fontSize: 20,
-      draggable: true,
-      width: 200
+      draggable: true, // Alto de la imagen en el lienzo
+      name: type,
+      src
     });
   }
 }

@@ -3,6 +3,16 @@
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Seleccionar"
+      [color]="selectedButton['select'] ? 'primary' : ''"
+			(click)="clearSelection(); setSelection('select'); selectSwitch()"
+    >
+      <mat-icon>near_me</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      matTooltip="Dibujar círculo"
+      class="mb5"
       [color]="selectedButton['circle'] ? 'primary' : ''"
 			(click)='addShape("circle")'
     >
@@ -10,6 +20,7 @@
     </button>
     <button
       mat-mini-fab
+      matTooltip="Dibujar rectángulo"
       class="mb5"
       [color]="selectedButton['rectangle'] ? 'primary' : ''"
 			(click)='addShape("rectangle")'
@@ -19,6 +30,7 @@
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Dibujar línea"
       [color]="selectedButton['line'] ? 'primary' : ''"
 			(click)='addShape("line"); erase = false'
     >
@@ -27,6 +39,7 @@
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Dibujo libre"
       [color]="selectedButton['drawer'] ? 'primary' : ''"
 			(click)='addShape("drawer"); erase = false'
     >
@@ -35,28 +48,32 @@
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Agregar texto"
       [color]="selectedButton['text'] ? 'primary' : ''"
 			(click)='addShape("text")'
     >
       <mat-icon>text_fields</mat-icon>
     </button>
-    <button
+    <button 
       mat-mini-fab
-      class="mb5"
-      [color]="selectedButton['image'] ? 'primary' : ''"
-			(click)='addShape("image")'
-    >
+      class="mb5" 
+      matTooltip="Agregar imagen"
+      [color]="''"
+      [matMenuTriggerFor]="menu"
+      matMenuTriggerX="before"
+      matMenuTriggerY="above">
       <mat-icon>add_photo_alternate</mat-icon>
     </button>
-		<!-- <mat-menu #menu="matMenu" yPosition="above">
-			<button mat-menu-item (click)='addShape("image")'>Puertas</button>
-			<button mat-menu-item (click)='addShape("image")'>Sanitario</button>
-			<button mat-menu-item (click)='addShape("image")'>Audio</button>
-			<button mat-menu-item (click)='addShape("image")'>Discapacitados</button>
-		</mat-menu> -->
+		<mat-menu #menu="matMenu" yPosition="above">
+			<button mat-menu-item (click)='addShape("image", "elevator")'>Puertas</button>
+			<button mat-menu-item (click)='addShape("image", "bathroom")'>Sanitario</button>
+			<button mat-menu-item (click)='addShape("image", "headphones")'>Audio</button>
+			<button mat-menu-item (click)='addShape("image", "disabled")'>Discapacitados</button>
+		</mat-menu>
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Deshacer"
       [color]="selectedButton['undo'] ? 'primary' : ''"
 			(click)='clearSelection(); setSelection("undo"); undo()'
     >
@@ -65,15 +82,35 @@
     <button
       mat-mini-fab
       class="mb5"
+      matTooltip="Rehacer"
+      [color]="selectedButton['redo'] ? 'primary' : ''"
+			(click)='clearSelection(); setSelection("redo"); redo()'
+    >
+      <mat-icon>redo</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      class="mb5"
+      matTooltip="Borrar"
       [color]="selectedButton['erase'] ? 'primary' : ''"
 			(click)='clearSelection(); setSelection("erase"); erase = true'
     >
       <mat-icon>how_to_vote</mat-icon>
     </button>
-    <button mat-mini-fab class="mb5" color="accent" (click)="saveCanvas()">
+    <button
+      mat-mini-fab
+      class="mb10"
+      matTooltip="Rellenar"
+      [color]="selectedButton['fill'] ? 'primary' : ''"
+			(click)='fillSwitch()'
+    >
+      <mat-icon>format_color_fill</mat-icon>
+    </button>
+    <input matInput class="mb10" matTooltip="Cambiar color" type="color" value="#000000" [(ngModel)]= "color"/>
+    <button mat-mini-fab class="mb5" matTooltip="Guardar" color="accent" (click)="saveCanvas()">
       <mat-icon>save</mat-icon>
     </button>
-    <button mat-mini-fab class="mb5" color="warn" (click)='clearBoard()'>
+    <button mat-mini-fab class="mb5" matTooltip="Eliminar todo"  color="warn" (click)='clearBoard()'>
       <mat-icon>delete</mat-icon>
     </button>
   </div>

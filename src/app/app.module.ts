@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ShapeService } from './services/shape.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -27,6 +28,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     MatIconModule,
     MatInputModule,
     MatTooltipModule,
+    MatSelectModule,
     MatMenuModule,
     FormsModule
   ],

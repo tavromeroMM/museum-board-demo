@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import Konva from 'konva';
+import { LineCap } from 'konva/lib/Shape';
 
 
 @Injectable({
@@ -20,14 +21,33 @@ export class ShapeService {
     });
   }
 
-  rectangle() {
+  circle(x: number, y: number, radius: number, color: string, strokeWidth: number) {
+    return new Konva.Circle({
+      x,
+      y,
+      radius,
+      stroke: color,
+      strokeWidth
+    });
+  }
+
+  line(x: number, y: number, x2: number, y2: number, color: string, strokeWidth: number, lineCap: LineCap) {
+    return new Konva.Line({
+      points: [x, y, x2, y2],
+      stroke: color,
+      strokeWidth,
+      lineCap
+    });
+  }
+
+  rectangle(x: number, y: number, width: number, height: number, color: string, strokeWidth: number) {
     return new Konva.Rect({
-      x: 20,
-      y: 20,
-      width: 100,
-      height: 50,
-      stroke: 'black',
-      strokeWidth: 2,
+      x,
+      y,
+      width,
+      height,
+      stroke: color,
+      strokeWidth: strokeWidth,
       draggable: true
     });
   }
@@ -55,8 +75,7 @@ export class ShapeService {
       y: 50,
       image: imageObj,
       width: 100, // Ancho de la imagen en el lienzo
-      height: 100,
-      draggable: true, // Alto de la imagen en el lienzo
+      height: 100, // Alto de la imagen en el lienzo
       name: type,
       src
     });

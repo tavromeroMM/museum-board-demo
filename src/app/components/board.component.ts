@@ -5,6 +5,12 @@ import { Shape } from 'konva/lib/Shape';
 import { initCanvasData } from '../shared/initMap';
 import { Operations } from '../utils/operations';
 import exportFromJSON from 'export-from-json';
+import Swal from 'sweetalert2'
+
+interface LineWidth {
+  value: string;
+  description: string;
+}
 
 @Component({
   selector: 'app-board',
@@ -38,11 +44,19 @@ export class BoardComponent implements OnInit, AfterViewInit {
   isDraging: boolean = false;
   isFill: boolean = false;
   isSelect: boolean = false;
+  isLock: boolean = true;
   x1: number | undefined;
   y1: number | undefined;
   action: string = '';
   shape?: Konva.Shape;
   operations?: Operations;
+
+  linesWidth: LineWidth[] = [
+    {value: '1', description: '1px'},
+    {value: '2', description: '2px'},
+    {value: '4', description: '4px'},
+    {value: '6', description: '6px'},
+  ];
 
 	constructor(
     private shapeService: ShapeService
@@ -80,8 +94,8 @@ export class BoardComponent implements OnInit, AfterViewInit {
     this.layer.add(this.transformer);
     this.stage.add(this.layer);
     this.operations = new Operations(this.layer);
-    this.addDrawerListeners();
     this.load();
+    this.addDeleteListener();
 	}
 
   private initStage() {
@@ -138,16 +152,26 @@ export class BoardComponent implements OnInit, AfterViewInit {
   }
 
   select(e: Konva.KonvaPointerEvent) {
-    if (this.isSelect) {
+    if (this.isSelect && !this.isLock) {
       this.unselect();
       if (e.target != this.stage) {
         this.transformer.setNodes([e.target]);
         e.target.setDraggable(true);
       }
+    } else if (this.isLock) {
+      if (e.target instanceof Konva.Image) {
+        const name = e.target.name();
+        if (name === 'headphones') {
+          Swal.fire({
+            title: "Reproducción de audio",
+            icon: "info"
+          });
+        }
+      }
     }
   }
 
-  private unselect() {
+  unselect() {
     this.transformer.setNodes([]);
     for (const child of this.layer.getChildren()) {
       if (child.getClassName() != 'Transformer') child.setDraggable(false);
@@ -187,13 +211,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
       this.shape?.setAttr('radius', radius);
     } else {
       this.isDraging = true;
-      this.shape = new Konva.Circle({
-        x: x,
-        y: y,
-        radius: radius,
-        stroke: this.color,
-        strokeWidth: parseInt(this.lineWidth)
-      });
+      this.shape = this.shapeService.circle(x, y, radius, this.color, parseInt(this.lineWidth));
       if (this.isFill) this.shape.setAttr('fill', this.color);
 
       this.layer.add(this.shape);
@@ -206,14 +224,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
       this.shape?.setAttr('height', h);
     } else {
       this.isDraging = true;
-      this.shape = new Konva.Rect({
-        x: x,
-        y: y,
-        width: w,
-        height: h,
-        stroke: this.color,
-        strokeWidth: parseInt(this.lineWidth)
-      });
+      this.shape = this.shapeService.rectangle(x, y, w, h, this.color, parseInt(this.lineWidth));
       if (this.isFill) this.shape.setAttr('fill', this.color);
       this.layer.add(this.shape);
     }
@@ -224,11 +235,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
       this.shape?.setAttr('points', [x1, y1, x2, y2]);
     } else {
       this.isDraging = true;
-      this.shape = new Konva.Line({
-        points: [x1, y1, x2, y2],
-        stroke: this.color,
-        strokeWidth: parseInt(this.lineWidth)
-      });
+      this.shape = this.shapeService.line(x1, y1, x2, y2, this.color, parseInt(this.lineWidth), 'butt');
 
       this.layer.add(this.shape);
     }
@@ -241,13 +248,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
       this.shape?.setAttr('points', points);
     } else {
       this.isDraging = true;
-      this.shape = new Konva.Line({
-        points: [x, y, x, y],
-        stroke: this.color,
-        strokeWidth: parseInt(this.lineWidth),
-        lineCap: 'round'
-      });
-
+      this.shape = this.shapeService.line(x, y, x, y, this.color, parseInt(this.lineWidth), 'round');
       this.layer.add(this.shape);
     }
   }
@@ -282,41 +283,9 @@ export class BoardComponent implements OnInit, AfterViewInit {
 
 	addImage(type: string) {
 		const image = this.shapeService.image(type);
-    this.shapes.push(image);
     this.layer.add(image);
-    this.stage.add(this.layer);
-    this.addTransformerListeners(image)
+    this.stage.batchDraw();
 	}
-
-	addDrawerListeners() {
-    const component = this;
-    let lastLine: any;
-    let isPaint: any;
-    this.stage.on('mousedown touchstart', function (e) {
-      if (!component.selectedButton['drawer'] && !component.erase) {
-        return;
-      }
-      isPaint = true;
-      let pos = component.stage.getPointerPosition();
-      const mode = component.erase ? 'erase' : 'brush';
-      lastLine = component.shapeService.drawer(pos, mode, '#FFFFFF')
-      component.shapes.push(lastLine);
-      component.layer.add(lastLine);
-    });
-    this.stage.on('mouseup touchend', function () {
-      isPaint = false;
-    });
-
-    this.stage.on('mousemove touchmove', function () {
-      if (!isPaint) {
-        return;
-      }
-      const position: any = component.stage.getPointerPosition();
-      var newPoints = lastLine.points().concat([position.x, position.y]);
-      lastLine.points(newPoints);
-      component.layer.batchDraw();
-    });
-  }
 
   undo() {
     if (this.isSelect) this.selectSwitch();
@@ -338,6 +307,18 @@ export class BoardComponent implements OnInit, AfterViewInit {
     }
   }
 
+  copy() {
+    const nodes = this.transformer.getNodes();
+    if (nodes.length != 0) {
+      const pos = nodes[0].getPosition();
+      this.shape = nodes[0].clone({ x: pos.x + 50, y: pos.y + 50 });
+      if (this.shape) {
+        this.layer.add(this.shape);
+        this.operations?.push('Create', this.shape);
+      }
+    }
+  }
+
   addTransformerListeners(shape: Shape) {
     const component = this;
     const tr = new Konva.Transformer();
@@ -349,7 +330,6 @@ export class BoardComponent implements OnInit, AfterViewInit {
 			}
 
       if (e.target == shape) {
-        component.addDeleteListener(e.target);
         component.layer.add(tr);
         tr.attachTo(e.target);
         component.transformers.push(tr);
@@ -371,19 +351,14 @@ export class BoardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  addDeleteListener(shape: any) {
-    const component = this;
-    window.addEventListener('keydown', function (e) {
+  addDeleteListener() {
+    window.addEventListener('keydown', (e) => {
       if (e.key === 'Delete') {
-        shape.remove();
-        component.transformers.forEach(t => {
-          t.detach();
-        });
-        const selectedShape = component.shapes.find((s: any) => s._id == shape._id);
-        selectedShape.remove();
-        e.preventDefault();
+        this.delete();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+        this.copy();
       }
-      component.layer.batchDraw();
+      e.preventDefault();
     });
   }
 
@@ -413,24 +388,24 @@ export class BoardComponent implements OnInit, AfterViewInit {
     const images = initCanvasData.children[0].children.filter(obj => obj.className === 'Image');
     images.forEach((obj: any) => {
       const image = new Image();
-            image.onload = () => {
-                const konvaImage = new Konva.Image({
-                    x: obj.attrs.x,
-                    y: obj.attrs.y,
-                    image: image,
-                    width: obj.attrs.width,
-                    height: obj.attrs.height,
-                    draggable: obj.attrs.draggable,
-                    name: obj.attrs.name,
-                    src: obj.attrs.src,
-                    scaleX: obj.attrs.scaleX,
-                    scaleY: obj.attrs.scaleY,
-                    strokeWidth: obj.attrs.strokeWidth
-                });
-                this.layer.add(konvaImage);
-                this.stage.batchDraw();
-            };
-            image.src = obj.attrs.src;
+      image.onload = () => {
+        const konvaImage = new Konva.Image({
+          x: obj.attrs.x,
+          y: obj.attrs.y,
+          image: image,
+          width: obj.attrs.width,
+          height: obj.attrs.height,
+          draggable: obj.attrs.draggable,
+          name: obj.attrs.name,
+          src: obj.attrs.src,
+          scaleX: obj.attrs.scaleX,
+          scaleY: obj.attrs.scaleY,
+          strokeWidth: obj.attrs.strokeWidth
+        });
+        this.layer.add(konvaImage);
+        this.stage.batchDraw();
+      };
+      image.src = obj.attrs.src;
     });
   }
 

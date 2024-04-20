@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build — prod — aot.",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -23,6 +23,7 @@
     "export-from-json": "^1.7.4",
     "konva": "^9.3.5",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.10.8",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
   },
